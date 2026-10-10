@@ -1,0 +1,27 @@
+{
+  "name": "shortlet-webapp-automations",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright E2E for Sunmade customer and admin frontends",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:critical": "playwright test --grep @critical",
+    "test:customer": "playwright test --project=customer",
+    "test:admin": "playwright test --project=admin",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^22.18.0",
+    "dotenv": "^17.2.2",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

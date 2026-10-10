@@ -1,0 +1,92 @@
+name: E2E
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Playwright smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run @smoke
+        env:
+          CI: true
+          CUSTOMER_BASE_URL: ${{ secrets.CUSTOMER_BASE_URL }}
+          ADMIN_BASE_URL: ${{ secrets.ADMIN_BASE_URL }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          TENANT_SLUG: ${{ secrets.TENANT_SLUG }}
+        run: npm run test:smoke
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  critical:
+    name: Playwright critical
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: smoke
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run @critical (exclude @slow)
+        env:
+          CI: true
+          CUSTOMER_BASE_URL: ${{ secrets.CUSTOMER_BASE_URL }}
+          ADMIN_BASE_URL: ${{ secrets.ADMIN_BASE_URL }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          PROPERTY_SLUG: ${{ secrets.PROPERTY_SLUG }}
+          TENANT_SLUG: ${{ secrets.TENANT_SLUG }}
+        run: npx playwright test --grep @critical --grep-invert @slow
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-critical
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
