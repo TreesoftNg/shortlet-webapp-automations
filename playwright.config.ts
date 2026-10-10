@@ -24,20 +24,15 @@ export default defineConfig({
   projects: [
     {
       name: 'customer',
-      testDir: './customer-frontend/tests',
+      testDir: './customer-frontend',
+      testMatch: /customer\.spec\.ts/,
       use: { baseURL: customerBaseURL },
     },
     {
       name: 'admin',
-      testDir: './admin-frontend/tests',
+      testDir: './admin-frontend',
+      testMatch: /admin\.spec\.ts/,
       use: { baseURL: adminBaseURL },
-    },
-    {
-      name: 'cross-app',
-      testDir: './shared/cross-app',
-      use: {
-        baseURL: customerBaseURL,
-      },
     },
   ],
 });

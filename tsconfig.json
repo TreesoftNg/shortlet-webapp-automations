@@ -16,7 +16,7 @@
   "include": [
     "playwright.config.ts",
     "shared/**/*.ts",
-    "customer-frontend/**/*.ts",
-    "admin-frontend/**/*.ts"
+    "customer-frontend/*.ts",
+    "admin-frontend/*.ts"
   ]
 }

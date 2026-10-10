@@ -1,10 +1,10 @@
-# Playwright E2E automations plan
+# Playwright E2E plan
 
 ## Goal
 
-This repo is the single place for browser E2E tests against the guest site (`shortlet-frontend`) and admin (`shortlet-admin`), driven by Playwright.
+One place for browser E2E against guest (`shortlet-frontend`) and admin (`shortlet-admin`).
 
-## Repo layout
+## Layout (keep it small)
 
 ```
 shortlet-webapp-automations/
@@ -13,86 +13,37 @@ shortlet-webapp-automations/
   package.json
   playwright.config.ts
   .env.example
-  .gitignore
-  shared/
+  shared/                 # env, auth, tags
   customer-frontend/
-    tests/
-    pages/
+    customer.spec.ts      # all guest journeys
   admin-frontend/
-    tests/
-    pages/
+    admin.spec.ts         # all admin journeys
 ```
 
-One root Playwright install, two projects (different `baseURL` + `testDir`). Shared helpers live in `shared/`.
+Add page objects later only when a spec gets hard to read. Prefer growing the two spec files first.
 
 ## Tools
 
-- Runner: `@playwright/test` (TypeScript)
-- Env: `dotenv` + gitignored `.env` (commit `.env.example`)
-- Fake data: `@faker-js/faker`
-- Reports: Playwright HTML + trace on failure
-- CI: GitHub Actions
-- Payments: Flutterwave test cards + hosted checkout (assert redirect/confirm)
-- OTP/invite mail (later): Mailosaur or similar
-
-No Cypress, Cucumber, or Allure for v1.
+- `@playwright/test` + TypeScript
+- `dotenv` + `.env` (gitignored)
+- `@faker-js/faker` when you need fake guest data
+- Flutterwave test cards for pay flows
+- GitHub Actions for CI
 
 ## Environments
 
-- Customer: `CUSTOMER_BASE_URL` (e.g. `http://localhost:3000`)
-- Admin: `ADMIN_BASE_URL` (e.g. `http://localhost:3001`)
-- Apps point at API (`localhost:4000` or staging) with tenant slug `sunmade`
-- Prefer demo owner `demo.owner@example.com` (seeded password) over personal accounts
+- `CUSTOMER_BASE_URL` / `ADMIN_BASE_URL`
+- Demo owner: `demo.owner@example.com` (seeded password)
+- Tenant slug `sunmade` on the apps
 
-## Flows — customer-frontend
+## Flow backlog (add to the two specs over time)
 
-1. Home to search
-2. Search to property detail
-3. Locations to filtered search
-4. Book and pay (critical): property, checkout, Flutterwave test pay, confirmation
-5. Checkout empty / bad dates
-6. Sign up + OTP (when inbox ready)
-7. Sign in / out / auth guards
-8. Trips (auth)
-9. Leave review on past trip
-10. Contact form
-11. Coming soon / preview cookie if `COMING_SOON` is on
+**Customer:** home → search → property → book/pay → confirmation; auth; trips; review; contact; coming soon.
 
-## Flows — admin-frontend
+**Admin:** login; bookings ops; payments; property/unit/media; availability; calendar sync; staff; customers; reviews; settings.
 
-1. Owner login + sign out
-2. Auth redirect with `next=`
-3. Bookings list / tabs / detail
-4. Check-in / cancel (disposable booking)
-5. Release deposit / refund stay
-6. Payments list + verify with Flutterwave
-7. Create property + unit
-8. Unit gallery upload / cover / video link
-9. Availability block + remove
-10. Calendar sync import / export smoke
-11. Staff invite + resend (owner)
-12. Customers, reviews publish/hide, settings save
+**Cross-app (later):** guest books → admin sees it; staff invite → accept → login.
 
-## Cross-app
+## Tags
 
-1. Guest books and pays, admin sees confirmed booking
-2. Staff payment-link booking, guest pays, admin shows paid
-3. Owner invites staff, invitee accepts and logs in
-
-## Phases
-
-| Phase | Focus |
-|-------|--------|
-| 0 | Scaffold + smoke |
-| 1 | Critical path (login, bookings, search → checkout) |
-| 2 | Money and ops + first cross-app flow |
-| 3 | Inventory, calendar, staff, customers, reviews, settings |
-| 4 | CI against staging |
-
-## Conventions
-
-- Page objects under each app `pages/`
-- Specs named by journey (`book-and-pay.spec.ts`)
-- Prefer `getByRole` / labels
-- Tags `@smoke`, `@critical`, `@slow`
-- Never commit real passwords
+`@smoke` · `@critical` · `@slow`
