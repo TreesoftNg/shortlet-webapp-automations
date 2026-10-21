@@ -5,17 +5,18 @@
   "description": "Playwright E2E for Sunmade customer and admin frontends",
   "scripts": {
     "test": "playwright test",
-    "test:smoke": "playwright test --grep @smoke",
-    "test:critical": "playwright test --grep @critical",
     "test:customer": "playwright test --project=customer",
-    "test:admin": "playwright test --project=admin",
+    "test:admin": "playwright test --project=admin --project=admin-login",
+    "test:admin:full": "playwright test --project=admin tests/admin/full-journey.spec.ts",
+    "test:admin:smoke": "playwright test --project=admin-login && playwright test --project=admin tests/admin/dashboard.spec.ts tests/admin/properties.spec.ts tests/admin/payments.spec.ts tests/admin/settings.spec.ts --grep-invert \"creates an E2E\"",
+    "test:booking": "playwright test tests/customer/booking.spec.ts",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "install:browsers": "playwright install chromium"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.9.0",
+    "@faker-js/faker": "^10.6.0",
     "@playwright/test": "^1.55.0",
     "@types/node": "^22.18.0",
     "dotenv": "^17.2.2",

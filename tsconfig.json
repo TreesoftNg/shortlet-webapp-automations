@@ -8,15 +8,10 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["shared/*"]
-    }
+    "baseUrl": "."
   },
   "include": [
     "playwright.config.ts",
-    "shared/**/*.ts",
-    "customer-frontend/*.ts",
-    "admin-frontend/*.ts"
+    "tests/**/*.ts"
   ]
 }

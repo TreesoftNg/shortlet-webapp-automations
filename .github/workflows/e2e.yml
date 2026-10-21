@@ -30,7 +30,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install chromium --with-deps
 
-      - name: Run @smoke
+      - name: Run page checks
         env:
           CI: true
           CUSTOMER_BASE_URL: ${{ secrets.CUSTOMER_BASE_URL }}
@@ -38,7 +38,17 @@ jobs:
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           TENANT_SLUG: ${{ secrets.TENANT_SLUG }}
-        run: npm run test:smoke
+        run: |
+          npx playwright test \
+            tests/customer/home.spec.ts \
+            tests/customer/checkout.spec.ts \
+            --project=admin-login
+          npx playwright test --project=admin \
+            tests/admin/dashboard.spec.ts \
+            tests/admin/properties.spec.ts \
+            tests/admin/payments.spec.ts \
+            tests/admin/settings.spec.ts \
+            --grep-invert "creates an E2E"
 
       - name: Upload report
         if: failure()
@@ -70,16 +80,26 @@ jobs:
       - name: Install Chromium
         run: npx playwright install chromium --with-deps
 
-      - name: Run @critical (exclude @slow)
+      - name: Run sign-in and admin checks
         env:
           CI: true
           CUSTOMER_BASE_URL: ${{ secrets.CUSTOMER_BASE_URL }}
           ADMIN_BASE_URL: ${{ secrets.ADMIN_BASE_URL }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          CUSTOMER_EMAIL: ${{ secrets.CUSTOMER_EMAIL }}
+          CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
           PROPERTY_SLUG: ${{ secrets.PROPERTY_SLUG }}
           TENANT_SLUG: ${{ secrets.TENANT_SLUG }}
-        run: npx playwright test --grep @critical --grep-invert @slow
+        run: >
+          npx playwright test
+          tests/customer/signup.spec.ts
+          tests/customer/sign-in.spec.ts
+          tests/admin/bookings.spec.ts
+          tests/admin/customers.spec.ts
+          tests/admin/staff.spec.ts
+          tests/admin/availability.spec.ts
+          tests/admin/properties.spec.ts
 
       - name: Upload report
         if: failure()
